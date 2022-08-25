@@ -27,15 +27,12 @@ var
     1@: Integer    // SKY MODE
     2@: Integer    // TAPPERING OFF DURATION
     3@: Integer    // CRACK DEALING COUNTS
-end 
-0004: 3@ = 0
+end
+0004: 1@ = 0   
+0004: 3@ = 0 
 0002: jump @INIT
 
 :INIT 
-0001: wait 0 ms
-00D6: if
-0038:   $ONMISSION == 0 
-jf @INIT
 0001: wait 0 ms 
 00D6: if 
 04EE:   animation "GANGS" loaded 
@@ -43,10 +40,9 @@ jf @MAIN
 0001: wait 0 ms 
 00D6: if 
 04EE:   animation "DEALER" loaded 
-jf @MAIN 
+jf @MAIN   
 0001: wait 0 ms   
 0004: 0@ = 0 
-0004: 1@ = 0 
 0004: 2@ = 1500 // DEFAULT: 1.5 SECOND  
 0002: jump @INIT_0
 
@@ -146,7 +142,7 @@ end
 0001: wait 0 ms 
 if
 0@ > 0
-then
+then   
 0001: wait 2@ ms  // NOTICE, THIS IS THE DURATION OF CJ's TAPPERING OFF FROM SUBSTANCE
 Dec(0@,1) // DECREMENT DRUNK LEVEL 1 
 0002: jump @DRUNK 
@@ -154,23 +150,29 @@ else
 0002: jump @INIT
 end  
   
-:DRUNK                    
-052C: set_player $PLAYER_CHAR drunk_visuals 0@ 
+:DRUNK 
+0001: wait 0 ms                   
+052C: set_player $PLAYER_CHAR drunk_visuals 0@    
 0001: wait 0 ms
 if and
-1@ > 0
-0@ > 20
-then
+1@ == 1
+0@ > 20 
+then   
 0001: wait 0 ms
 04F9: set_sky_color 1@ fade 0 
-0002: jump @INIT_0
-else
-015D: set_gamespeed 1.0
-04FA: reset_sky_colors_with_fade 0
-0002: jump @INIT_0
+0002: jump @INIT_0  
+else 
+    0001: wait 0 ms 
+    if
+    1@ == 1 
+    jf @INIT_0
+    0004: 1@ = 0     
+    015D: set_gamespeed 1.0
+    04FA: reset_sky_colors_with_fade 0
+    0002: jump @INIT_0  
 end 
 
-:STREET 
+:STREET  
 0001: wait 0 ms
 00D6: if
 0038:   $ONMISSION == 0 

@@ -203,7 +203,7 @@ end
 00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 3.8 3.8 sphere 0 on_foot
 004D: jump_if_false @CHECK 
 0001: wait 0 ms
-00D6: if and
+00D6: if and 
 871A:   not actor 10@ current_dialogue_text == 'DEAL3'  // Fuck you man.
 8118:   not actor 10@ dead   
 004D: jump_if_false @TALK_0
@@ -277,8 +277,9 @@ jump @BUY
 00E1:   player 0 pressed_key 10  // Ginput Left Pad  
 004D: jump_if_false @TALK 
 0001: wait 0 ms
-03E6: remove_text_box 'TALK_1'
-0A09: set_actor $PLAYER_ACTOR muted 0 
+0A09: set_actor $PLAYER_ACTOR muted 0
+0001: wait 0 ms
+03E6: remove_text_box 'TALK_1' 
 0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@ 
 0001: wait 100 ms      
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110

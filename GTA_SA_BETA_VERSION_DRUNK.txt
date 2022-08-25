@@ -4,7 +4,7 @@
 // :TALK should be ended if cj choose to not to respond at all
 // :BAR CJ should vomit if he drink too much then destroy the sphere
 // STAMINA should decreaase too as health does
-
+           
 {$CLEO .cs} 
 
 03A4: name_thread 'BETA_DRUNK'
@@ -16,7 +16,12 @@
 0001: wait 0 ms
 00D6: if 
 0248:   model 1486 available
-004D: jump_if_false @MAIN 
+004D: jump_if_false @MAIN
+03BC: 4@ = create_sphere_at -224.9712 1403.863 27.7734 radius 0.5 
+03BC: 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 
+03BC: 6@ = create_sphere_at 499.824 -18.8112 1000.672 radius 0.5 
+03BC: 7@ = create_sphere_at 1207.4664 -28.3249 1000.9531 radius 0.5
+03BC: 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5  
 var
     0@: Integer    // DRUNK LEVEL , ACTUAL MAX = 220, BUT WE USE 200 AS MAX POINT BECAUSE IN THIS MOD WE USE TIMING FOR "TAPPERING OFF" AND CJ CAN "COMBINE" BOTH DRUG AND BEER (DIFFERENT BEHAVIOUR) SO WE NEED TO BE SAFE FOR CALCULATE EVERYTHING AND THEN USE 200 AS OUR MAX POINT, SAY THE MOST POSSIBLE OFFESET CALCULATION WOULDBE 219, AND THE VALUE WILL BE REVERT TO 200, IT IS BETTER THAN IF THE CALCULATION OFFSET OVER 220 AND THE CAMERA RESET TO NORMAL.
     1@: Integer    // SKY MODE
@@ -27,6 +32,10 @@ end
 0002: jump @INIT
 
 :INIT 
+0001: wait 0 ms
+00D6: if
+0038:   $ONMISSION == 0 
+jf @INIT
 0001: wait 0 ms 
 00D6: if 
 04EE:   animation "GANGS" loaded 
@@ -39,15 +48,10 @@ jf @MAIN
 0004: 0@ = 0 
 0004: 1@ = 0 
 0004: 2@ = 1500 // DEFAULT: 1.5 SECOND  
-03BC: 4@ = create_sphere_at -224.9712 1403.863 27.7734 radius 0.5 
-03BC: 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 
-03BC: 6@ = create_sphere_at 499.824 -18.8112 1000.672 radius 0.5 
-03BC: 7@ = create_sphere_at 1207.4664 -28.3249 1000.9531 radius 0.5
-03BC: 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5 
 0002: jump @INIT_0
 
 :INIT_0
-0001: wait 0 ms 
+0001: wait 0 ms
 00D6: if 
 0256:   player $PLAYER_CHAR defined 
 jf @INIT
@@ -168,7 +172,9 @@ end
 
 :STREET 
 0001: wait 0 ms
-03E6: remove_text_box
+00D6: if
+0038:   $ONMISSION == 0 
+jf @CHECK
 0001: wait 0 ms
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
@@ -198,14 +204,10 @@ end
 00D6: if and
 871A:   not actor 10@ current_dialogue_text == 'DEAL3'  // Fuck you man.
 8118:   not actor 10@ dead   
-then
-0639: AS_actor 10@ rotate_to_actor $PLAYER_ACTOR
+004D: jump_if_false @TALK_0
 0512: show_permanent_text_box 'TALK_1'
 0001: wait 500 ms 
-jump @TALK
-else
-jump @STREET
-end  
+jump @TALK 
 
 :TALK        // CHECK THIS, WHAT WILL HAPPEN IF USER DID NOT RESPONSE ANYTHING AND JUST WAKL AWAY??? WILL THE CODE STUCK???   
 0001: wait 0 ms 
@@ -216,7 +218,7 @@ end
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
 then
-03E6: remove_text_box 
+0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @STREET 
@@ -227,41 +229,39 @@ end
 00D6: if 
 8039:   not  10@ == -1  
 then 
-03E6: remove_text_box 
+0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @STREET
-end
-0001: wait 0 ms 
+end 
 00D6: if or
 02F2:   actor 10@ model == #BMYDRUG 
 02F2:   actor 10@ model == #WMYDRUG 
 02F2:   actor 10@ model == #HMYDRUG 
 02F2:   actor 10@ model == #BIKDRUG 
 then
-03E6: remove_text_box 
+0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @TALK
 end 
-0001: wait 0 ms
 00D6: if
 00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 3.8 3.8 sphere 0 on_foot
 then
-03E6: remove_text_box 
+0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @STREET
 end
-0001: wait 0 ms
 00D6: if
 8118:   not actor 10@ dead 
 then
-03E6: remove_text_box 
+0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @STREET
 end  
+03E6: remove_text_box 'TALK_1'
 0459: end_thread_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
 0A09: set_actor 10@ muted 1  
 0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR time 1000
@@ -275,8 +275,10 @@ jump @BUY
 00E1:   player 0 pressed_key 10  // Ginput Left Pad  
 004D: jump_if_false @TALK 
 0001: wait 0 ms
-0A09: set_actor $PLAYER_ACTOR muted 0        
-03E6: remove_text_box
+03E6: remove_text_box 'TALK_1'
+0A09: set_actor $PLAYER_ACTOR muted 0 
+0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@ 
+0001: wait 100 ms      
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
 0001: wait 5000 ms 
 jump @INIT_0  

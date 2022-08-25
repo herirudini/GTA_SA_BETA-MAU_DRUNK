@@ -1,0 +1,355 @@
+// THIS MOD CREATED BY herirudini
+
+// TASK LEFT:
+// :TALK should be ended if cj choose to not to respond at all
+// :BAR CJ should vomit if he drink too much then destroy the sphere
+// STAMINA should decreaase too as health does
+
+{$CLEO .cs} 
+
+03A4: name_thread 'BETA_DRUNK'
+:MAIN
+04ED: load_animation "GANGS"
+04ED: load_animation "DEALER" 
+0247: load_model 1486    
+038B: load_requested_models 
+0001: wait 0 ms
+00D6: if 
+0248:   model 1486 available
+004D: jump_if_false @MAIN 
+var
+    0@: Integer    // DRUNK LEVEL , ACTUAL MAX = 220, BUT WE USE 200 AS MAX POINT BECAUSE IN THIS MOD WE USE TIMING FOR "TAPPERING OFF" AND CJ CAN "COMBINE" BOTH DRUG AND BEER (DIFFERENT BEHAVIOUR) SO WE NEED TO BE SAFE FOR CALCULATE EVERYTHING AND THEN USE 200 AS OUR MAX POINT, SAY THE MOST POSSIBLE OFFESET CALCULATION WOULDBE 219, AND THE VALUE WILL BE REVERT TO 200, IT IS BETTER THAN IF THE CALCULATION OFFSET OVER 220 AND THE CAMERA RESET TO NORMAL.
+    1@: Integer    // SKY MODE
+    2@: Integer    // TAPPERING OFF DURATION
+    3@: Integer    // CRACK DEALING COUNTS
+end 
+0004: 3@ = 0
+0002: jump @INIT
+
+:INIT 
+0001: wait 0 ms 
+00D6: if 
+04EE:   animation "GANGS" loaded 
+jf @MAIN
+0001: wait 0 ms 
+00D6: if 
+04EE:   animation "DEALER" loaded 
+jf @MAIN 
+0001: wait 0 ms   
+0004: 0@ = 0 
+0004: 1@ = 0 
+0004: 2@ = 1500 // DEFAULT: 1.5 SECOND  
+03BC: 4@ = create_sphere_at -224.9712 1403.863 27.7734 radius 0.5 
+03BC: 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 
+03BC: 6@ = create_sphere_at 499.824 -18.8112 1000.672 radius 0.5 
+03BC: 7@ = create_sphere_at 1207.4664 -28.3249 1000.9531 radius 0.5
+03BC: 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5 
+0002: jump @INIT_0
+
+:INIT_0
+0001: wait 0 ms 
+00D6: if 
+0256:   player $PLAYER_CHAR defined 
+jf @INIT
+0001: wait 0 ms
+00D6: if
+8118:   not actor $PLAYER_ACTOR dead 
+jf @INIT  
+0002: jump @BAR_1
+
+:BAR_1
+0001: wait 0 ms  
+00D6: if or
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 3.0 3.0 on_foot 
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point -224.9712 1403.863 radius 3.0 3.0 on_foot
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1215.366 -13.1901 radius 3.0 3.0 on_foot 
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 499.824 -18.8112 radius 3.0 3.0 on_foot
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1207.4664 -28.3249 radius 3.0 3.0 on_foot
+jf @STREET
+0002: jump @BAR_2 
+
+:BAR_2
+0001: wait 1500 ms  
+00D6: if or
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 0.5 0.5 on_foot 
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point -224.9712 1403.863 radius 0.5 0.5 on_foot
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1215.366 -13.1901 radius 0.5 0.5 on_foot 
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 499.824 -18.8112 radius 0.5 0.5 on_foot
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1207.4664 -28.3249 radius 0.5 0.5 on_foot
+jf @BAR_1
+Player.CanMove($PLAYER_CHAR, False)
+0001: wait 0 ms
+0173: set_actor $PLAYER_ACTOR Z_angle_to 180.0 
+0001: wait 0 ms
+067C: put_camera_on_actor $PLAYER_ACTOR offset 0.0 -1.0 0.7 rotation 0.0 1.0 0.5 tilt 0.0 switchstyle 2
+0001: wait 500 ms
+0512: show_permanent_text_box 'CLOTHC' 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 1
+0002: jump @BAR_5    
+
+:BAR_5
+0001: wait 0 ms   
+00D6: if 
+00E1:   player 0 pressed_key 16 // SPRINT BUTTON
+then
+03E6: remove_text_box
+0002: jump @BAR_6 
+else
+0001: wait 0 ms   
+00D6: if 
+00E1:   player 0 pressed_key 15 // GET IN CAR BUTTON
+jf @BAR_5
+03E6: remove_text_box 
+Player.CanMove($PLAYER_CHAR, True)
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
+097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
+02EB: restore_camera_with_jumpcut 
+0001: wait 5000 ms
+0002: jump @BAR_2
+end
+
+:BAR_6
+0001: wait 0 ms  
+0109: player $PLAYER_CHAR money = -10 
+097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1054    
+029B: 9@ = init_object 1486 at 0.0 0.0 0.0 
+0382: set_object 9@ collision_detection 0 
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0 
+070A: AS_actor $PLAYER_ACTOR attach_to_object 9@ offset 0.06 0.015 -0.05 on_bone 6 16 perform_animation "NULL" IFP_file "NULL" time 0 
+0605: actor $PLAYER_ACTOR perform_animation "DRNKBR_PRTL" IFP "GANGS" framedelta 4.0 loop 0 lockX 0 lockY 0 lockF 0 time 2300 
+0001: wait 2300 ms 
+0249: release_model 1486 
+0001: wait 0 ms 
+070B: set_actor $PLAYER_ACTOR onbone_attached_object_operation 1       
+0001: wait 0 ms 
+0108: destroy_object 9@  
+0002: jump @BAR_7
+
+:BAR_7
+0001: wait 0 ms 
+if 0@ < 190
+then
+Inc(0@,10)     
+0002: jump @DRUNK 
+else 
+0@ = 200 // MAXIMUM DRUNK LEVEL
+2@ = 1000 // DURATION HALF SECOND
+0851: set_actor $PLAYER_ACTOR decrease_health_by 2 affect_armour 0
+0002: jump @DRUNK 
+end  
+
+:CHECK
+0001: wait 0 ms 
+if
+0@ > 0
+then
+0001: wait 2@ ms  // NOTICE, THIS IS THE DURATION OF CJ's TAPPERING OFF FROM SUBSTANCE
+Dec(0@,1) // DECREMENT DRUNK LEVEL 1 
+0002: jump @DRUNK 
+else  
+0002: jump @INIT
+end  
+  
+:DRUNK                    
+052C: set_player $PLAYER_CHAR drunk_visuals 0@ 
+0001: wait 0 ms
+if and
+1@ > 0
+0@ > 20
+then
+0001: wait 0 ms
+04F9: set_sky_color 1@ fade 0 
+0002: jump @INIT_0
+else
+015D: set_gamespeed 1.0
+04FA: reset_sky_colors_with_fade 0
+0002: jump @INIT_0
+end 
+
+:STREET 
+0001: wait 0 ms
+03E6: remove_text_box
+0001: wait 0 ms
+00D6: if 
+not Actor.Driving($PLAYER_ACTOR)
+004D: jump_if_false @CHECK 
+0001: wait 0 ms    
+0AB5: store_actor $PLAYER_ACTOR closest_vehicle_to 11@ closest_ped_to 10@ 
+0001: wait 0 ms 
+00D6: if 
+8039:   not  10@ == -1  
+004D: jump_if_false @CHECK
+00D6: if or
+02F2:   actor 10@ model == #BMYDRUG 
+02F2:   actor 10@ model == #WMYDRUG 
+02F2:   actor 10@ model == #HMYDRUG 
+02F2:   actor 10@ model == #BIKDRUG
+then
+0A09: set_actor $PLAYER_ACTOR muted 1
+else 
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @CHECK
+end
+0001: wait 0 ms
+00D6: if
+00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 3.8 3.8 sphere 0 on_foot
+004D: jump_if_false @CHECK 
+0001: wait 0 ms
+00D6: if and
+871A:   not actor 10@ current_dialogue_text == 'DEAL3'  // Fuck you man.
+8118:   not actor 10@ dead   
+then
+0639: AS_actor 10@ rotate_to_actor $PLAYER_ACTOR
+0512: show_permanent_text_box 'TALK_1'
+0001: wait 500 ms 
+jump @TALK
+else
+jump @STREET
+end  
+
+:TALK        // CHECK THIS, WHAT WILL HAPPEN IF USER DID NOT RESPONSE ANYTHING AND JUST WAKL AWAY??? WILL THE CODE STUCK???   
+0001: wait 0 ms 
+00D6: if 
+00E1:   player 0 pressed_key 11 // 19 Ginput R3 (Look Behind) //11  //Ginput Right
+004D: jump_if_false @TALK_0
+0001: wait 0 ms
+00D6: if 
+not Actor.Driving($PLAYER_ACTOR)
+then
+03E6: remove_text_box 
+else
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @STREET 
+end
+0001: wait 0 ms 
+0AB5: store_actor $PLAYER_ACTOR closest_vehicle_to 11@ closest_ped_to 10@ 
+0001: wait 0 ms 
+00D6: if 
+8039:   not  10@ == -1  
+then 
+03E6: remove_text_box 
+else
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @STREET
+end
+0001: wait 0 ms 
+00D6: if or
+02F2:   actor 10@ model == #BMYDRUG 
+02F2:   actor 10@ model == #WMYDRUG 
+02F2:   actor 10@ model == #HMYDRUG 
+02F2:   actor 10@ model == #BIKDRUG 
+then
+03E6: remove_text_box 
+else
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @TALK
+end 
+0001: wait 0 ms
+00D6: if
+00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 3.8 3.8 sphere 0 on_foot
+then
+03E6: remove_text_box 
+else
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @STREET
+end
+0001: wait 0 ms
+00D6: if
+8118:   not actor 10@ dead 
+then
+03E6: remove_text_box 
+else
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @STREET
+end  
+0459: end_thread_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
+0A09: set_actor 10@ muted 1  
+0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR time 1000
+0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time 5000 // WHY 5000? just count every 'wait' below
+0001: wait 1000 ms   
+jump @BUY
+
+:TALK_0 
+0001: wait 0 ms
+00D6: if 
+00E1:   player 0 pressed_key 10  // Ginput Left Pad  
+004D: jump_if_false @TALK 
+0001: wait 0 ms
+0A09: set_actor $PLAYER_ACTOR muted 0        
+03E6: remove_text_box
+05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
+0001: wait 5000 ms 
+jump @INIT_0  
+
+:BUY 
+0001: wait 0 ms
+Player.CanMove($PLAYER_CHAR, False)
+06A8: AS_actor $PLAYER_ACTOR run_to_and_look_at_actor 10@ timelimit -1 approach_distance 0.5 approach_angle 0.0
+0001: wait 1000 ms 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
+0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0
+0350: set_actor 10@ maintain_position_when_attacked 1 
+0446: set_actor 10@ dismemberment_possible 0 
+0568: set_actor 10@ untargetable 1 
+02AB: set_actor 10@ immunities BP 1 FP 1 EP 1 CP 1 MP 1
+0A09: set_actor $PLAYER_ACTOR muted 0
+05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 194 
+0001: wait 0 ms                                 
+0812: AS_actor $PLAYER_ACTOR perform_animation "SHOP_PAY" IFP "DEALER" framedelta 4.0 loopA 1 lockX 0 lockY 0 lockF 0 time 3000
+0001: wait 3000 ms
+0647: AS_actor 10@ clear_look_task
+0109: player $PLAYER_CHAR money = -20
+0A09: set_actor 10@ muted 0
+05C1: AS_actor 10@ speak_from_audio_table 84  
+0687: clear_actor 10@ task
+0812: AS_actor 10@ perform_animation "DEALER_DEAL" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
+0812: AS_actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
+0001: wait 1500 ms         
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
+0350: set_actor 10@ maintain_position_when_attacked 0 
+0446: set_actor 10@ dismemberment_possible 1
+0568: set_actor 10@ untargetable 0 
+02AB: set_actor 10@ immunities BP 0 FP 0 EP 0 CP 0 MP 0
+0001: wait 1200 ms    
+09B6: set_actor 10@ wanted_by_police 1
+0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
+jump @HIT 
+
+:HIT
+0001: wait 100 ms
+Player.CanMove($PLAYER_CHAR, True)
+0615: define_AS_pack_begin 11@
+0605: actor -1 perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms  
+0616: define_AS_pack_end 11@
+0618: assign_actor $PLAYER_ACTOR to_AS_pack 11@
+wait 10000 
+0851: set_actor $PLAYER_ACTOR decrease_health_by 1 affect_armour 0 
+jump @HIT_0
+
+:HIT_0
+0001: wait 0 ms 
+if 3@ < 2
+then
+Inc(3@,1)
+jump @HIT_1
+else
+010D: set_player $PLAYER_CHAR wanted_level_to 1
+0001: wait 0 ms 
+0004: 3@ = 0
+jump @HIT_1
+end
+
+:HIT_1
+1@ = 1
+0001: wait 0 ms 
+if 0@ < 100
+then
+Inc(0@,100)
+jump @DRUNK
+else 
+0@ = 200 // MAXIMUM DRUNK LEVEL
+2@ = 1000 // DECREASE DURATION BECAUSE GAME SPEED WILL BE REDUCED AND CJ's DRUNK TOO LONG (just my preference)
+015D: set_gamespeed 0.9
+jump @DRUNK
+end

@@ -175,13 +175,9 @@ end
 :STREET  
 0001: wait 0 ms
 00D6: if
-0038:   $ONMISSION == 0
-then
+0038:   $ONMISSION == 0 
+jf @CHECK
 0001: wait 0 ms
-else 
-03E6: remove_text_box 'TALK_1'
-jump @CHECK
-end
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
 004D: jump_if_false @CHECK 

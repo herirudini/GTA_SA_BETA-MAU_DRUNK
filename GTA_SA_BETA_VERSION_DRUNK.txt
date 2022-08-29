@@ -198,7 +198,7 @@ not Actor.Driving($PLAYER_ACTOR)
 02F2:   actor 10@ model == #WMYDRUG 
 02F2:   actor 10@ model == #HMYDRUG 
 02F2:   actor 10@ model == #BIKDRUG
-then
+then 
 0A09: set_actor $PLAYER_ACTOR muted 1
 else 
 0A09: set_actor $PLAYER_ACTOR muted 0
@@ -213,14 +213,13 @@ end
 00D6: if and
 871A:   not actor 10@ current_dialogue_text == 'DEAL2'
 871A:   not actor 10@ current_dialogue_text == 'DEAL3'  // Response Negatively.  
-004D: jump_if_false @CHECK
+004D: jump_if_false @CHECK   
 0001: wait 0 ms
 0512: show_permanent_text_box 'TALK_1'
-0001: wait 500 ms 
 jump @TALK 
 
 :TALK  
-0001: wait 0 ms  
+0001: wait 0 ms   
 00D6: if 
 00E1:   player 0 pressed_key 11 // 19 Ginput R3 (Look Behind) //11  //Ginput Right
 then
@@ -259,7 +258,7 @@ jump @BUY
 0001: wait 0 ms 
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
-then
+then  
 0001: wait 0 ms 
 else
 0A09: set_actor $PLAYER_ACTOR muted 0
@@ -279,22 +278,25 @@ jump @CHECK
 end 
 00D6: if  
 00E1:   player 0 pressed_key 10  // Ginput Left Pad  
-004D: jump_if_false @TALK 
-0001: wait 0 ms
+then
 0A09: set_actor $PLAYER_ACTOR muted 0
-0001: wait 0 ms
+05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110 
 03E6: remove_text_box 'TALK_1' 
 0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@ 
-0001: wait 100 ms      
-05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
-jump @INIT_0  
+0001: wait 5000 ms      
+jump @INIT_0 
+else 
+0001: wait 0 ms
+0A09: set_actor $PLAYER_ACTOR muted 1
+jump @TALK
+end 
 
 :BUY 
 0001: wait 0 ms
 Player.CanMove($PLAYER_CHAR, False)
 0A09: set_actor $PLAYER_ACTOR muted 0
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 194 
-06A8: AS_actor $PLAYER_ACTOR run_to_and_look_at_actor 10@ timelimit -1 approach_distance 0.5 approach_angle 0.0
+06A8: AS_actor $PLAYER_ACTOR run_to_and_look_at_actor 10@ timelimit -1 approach_distance 0.7 approach_angle 0.0
 0001: wait 700 ms 
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
 0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@
@@ -308,7 +310,7 @@ Player.CanMove($PLAYER_CHAR, False)
 0001: wait 3000 ms
 0647: AS_actor 10@ clear_look_task
 0109: player $PLAYER_CHAR money = -20
-0687: clear_actor 10@ task
+0687: clear_actor 10@ task      
 0812: AS_actor 10@ perform_animation "DEALER_DEAL" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
 0812: AS_actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
 0A09: set_actor 10@ muted 0

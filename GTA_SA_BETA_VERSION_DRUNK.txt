@@ -4,6 +4,23 @@
 // :TALK should be ended if cj choose to not to respond at all
 // :BAR CJ should vomit if he drink too much then destroy the sphere
 // STAMINA should decreaase too as health does
+
+// VARIABLES:
+// 0@: Integer    // DRUNK LEVEL , ACTUAL MAX = 220, BUT WE USE 200 AS MAX POINT BECAUSE IN THIS MOD WE USE TIMING FOR "TAPPERING OFF" AND CJ CAN "COMBINE" BOTH DRUG AND BEER (DIFFERENT BEHAVIOUR) SO WE NEED TO BE SAFE FOR CALCULATE EVERYTHING AND THEN USE 200 AS OUR MAX POINT, SAY THE MOST POSSIBLE OFFESET CALCULATION WOULDBE 219, AND THE VALUE WILL BE REVERT TO 200, IT IS BETTER THAN IF THE CALCULATION OFFSET OVER 220 AND THE CAMERA RESET TO NORMAL.
+// 1@: Integer    // SKY MODE
+// 2@: Integer    // TAPPERING OFF DURATION
+// 3@: Integer    // CRACK DEALING COUNTS 
+// 4@ = create_sphere_at -224.9712 1403.863 27.7734 radius 0.5 
+// 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 
+// 6@ = create_sphere_at 499.824 -18.8112 1000.672 radius 0.5 
+// 7@ = create_sphere_at 1207.4664 -28.3249 1000.9531 radius 0.5
+// 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5 
+// 9@ = bottle
+// 10@ = near pedestrian
+// 10@ = crack dealer
+// 12@ = eating gum
+// 13@ = Player.WantedLevel($PLAYER_CHAR)
+// 20@ 21@ 22@ = CJ coordinates point at :STREET   
            
 {$CLEO .cs} 
 
@@ -364,10 +381,10 @@ jump @HIT
 :HIT
 0001: wait 100 ms
 Player.CanMove($PLAYER_CHAR, True)
-0615: define_AS_pack_begin 11@
+0615: define_AS_pack_begin 12@
 0605: actor -1 perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms  
-0616: define_AS_pack_end 11@
-0618: assign_actor $PLAYER_ACTOR to_AS_pack 11@
+0616: define_AS_pack_end 12@
+0618: assign_actor $PLAYER_ACTOR to_AS_pack 12@
 wait 10000 
 0851: set_actor $PLAYER_ACTOR decrease_health_by 1 affect_armour 0 
 jump @HIT_0
@@ -379,9 +396,9 @@ then
 Inc(3@,1)
 jump @HIT_1
 else 
-12@ = Player.WantedLevel($PLAYER_CHAR)
-Inc(12@,1)  
-010D: set_player $PLAYER_CHAR wanted_level_to 12@
+13@ = Player.WantedLevel($PLAYER_CHAR)
+Inc(13@,1)  
+010D: set_player $PLAYER_CHAR wanted_level_to 13@
 0001: wait 0 ms 
 0004: 3@ = 0
 jump @HIT_1

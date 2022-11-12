@@ -202,8 +202,8 @@ jf @CHECK
 not Actor.Driving($PLAYER_ACTOR)
 004D: jump_if_false @CHECK   
 0001: wait 0 ms       
-04C4: store_coords_to 20@ 21@ 22@ from_actor $PLAYER_ACTOR with_offset 0.0 0.0 0.0  
-0AE1: 10@ = random_actor_near_point 20@ 21@ 22@ in_radius 4.8 find_next 1 pass_deads 1 
+04C4: store_coords_to 20@ 21@ 22@ from_actor $PLAYER_ACTOR with_offset 0.0 0.0 0.0   
+0AE1: 10@ = random_actor_near_point 20@ 21@ 22@ in_radius 4.9 find_next 1 pass_deads 1 
 0001: wait 0 ms
 00D6: if 
 056D: actor 10@ defined 
@@ -244,12 +244,14 @@ then
     00D6: if
     071A:   actor 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
     then
-    0001: wait 0 ms
+    0001: wait 0 ms                
+    0708: reset_decision_maker $9453 event 38 
+    0709: set_decision_maker $9453 on_event 38 taskID 927 respect 0.0 hate 0.0 like 100.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files 
     0A47: set_dialogue_mode_enabled_without_GXT
-    0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
     0001: wait 0 ms              
+    0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
     0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR
-    0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
+    0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1  
     jump @TALK
     else
     jump @TALK
@@ -268,17 +270,8 @@ then
 03E6: remove_text_box 'TALK_1'
 0A09: set_actor 10@ muted 1 
 0001: wait 0 ms
-else   
-    00D6: if and
-    00E1:   player 0 pressed_key 11 // 19 Ginput R3 (Look Behind) //11  //Ginput Right
-    071A:   actor 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN
-    then
-    03E6: remove_text_box 'TALK_1'
-    0A09: set_actor 10@ muted 1 
-    0001: wait 0 ms
-    else
-    004D: jump @TALK_0
-    end
+else
+004D: jump @TALK_0
 end 
 00D6: if
 8118:   not actor 10@ dead 
@@ -289,9 +282,10 @@ else
 jump @STREET
 end  
 0001: wait 0 ms  
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
-0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR
-0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time 5000 // WHY 5000? just count every 'wait' below :BUY
+0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
+0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
+06A8: AS_actor 10@ run_to_and_look_at_actor $PLAYER_ACTOR timelimit -1 approach_distance 0.7 approach_angle 0.0
+0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
 jump @BUY
 
 :TALK_0 // CHECK IF CJ RESPONSE ~NO~ OR JUST IGNORE THE DEALER
@@ -318,7 +312,7 @@ else
 jump @STREET
 end
 00D6: if
-00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 4.8 4.8 sphere 0 on_foot
+00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 4.9 4.9 sphere 0 on_foot
 then
 0001: wait 0 ms 
 0470: 11@ = actor $PLAYER_ACTOR current_weapon
@@ -362,8 +356,8 @@ Player.CanMove($PLAYER_CHAR, False)
 0A09: set_actor $PLAYER_ACTOR muted 0
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 194 
 06A8: AS_actor $PLAYER_ACTOR run_to_and_look_at_actor 10@ timelimit -1 approach_distance 0.7 approach_angle 0.0
-0001: wait 700 ms 
-0A1D: AS_actor $PLAYER_ACTOR rotate_to_and_look_at_actor 10@
+0001: wait 1000 ms 
+0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1  
 01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0
 0350: set_actor 10@ maintain_position_when_attacked 1 
 0446: set_actor 10@ dismemberment_possible 0 
@@ -388,9 +382,7 @@ Player.CanMove($PLAYER_CHAR, False)
 077A: set_actor 10@ acquaintance 2 to_actors_pedtype 0 // see ped.dat 
 01B9: set_actor 10@ armed_weapon_to 0 
 0001: wait 1200 ms    
-09B6: set_actor 10@ wanted_by_police 1  
-0708: reset_decision_maker $9453 event 38 
-0709: set_decision_maker $9453 on_event 38 taskID 927 respect 0.0 hate 0.0 like 100.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files   
+09B6: set_actor 10@ wanted_by_police 1    
 jump @HIT 
 
 :HIT

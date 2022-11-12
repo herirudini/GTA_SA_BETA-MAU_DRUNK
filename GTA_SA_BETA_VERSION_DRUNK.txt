@@ -21,6 +21,7 @@
 // 12@ = eating gum
 // 13@ = Player.WantedLevel($PLAYER_CHAR)
 // 20@ 21@ 22@ = CJ coordinates point at :STREET   
+// 21@ = actor PLAYER current interior
            
 {$CLEO .cs} 
 
@@ -40,6 +41,7 @@ var
     1@: Integer    // SKY MODE
     2@: Integer    // TAPPERING OFF DURATION
     3@: Integer    // CRACK DEALING COUNTS   
+    21@: Integer // actor PLAYER interior
 end
 0004: 1@ = 0   
 0004: 3@ = 0   
@@ -73,21 +75,23 @@ jf @INIT
 0001: wait 0 ms
 00D6: if
 8118:   not actor $PLAYER_ACTOR dead 
-jf @INIT  
+jf @INIT          
 0002: jump @BAR_1
 
 :BAR_1
+0001: wait 0 ms
+077E: get_active_interior_to 21@
 0001: wait 0 ms  
-00D6: if or
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 3.0 3.0 on_foot 
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point -224.9712 1403.863 radius 3.0 3.0 on_foot
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1215.366 -13.1901 radius 3.0 3.0 on_foot 
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 499.824 -18.8112 radius 3.0 3.0 on_foot
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1207.4664 -28.3249 radius 3.0 3.0 on_foot
-jf @STREET
-0002: jump @BAR_2 
+00D6: if
+21@ == 0    //OUTSIDE
+jf @BAR_2
+0002: jump @STREET
 
-:BAR_2  
+:BAR_2 
+0001: wait 0 ms
+00D6: if
+21@ == 11      //BAR
+jf @INIT_0
 0001: wait 1500 ms  
 00D6: if or
 00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 0.5 0.5 on_foot 
@@ -103,7 +107,6 @@ Player.CanMove($PLAYER_CHAR, False)
 067C: put_camera_on_actor $PLAYER_ACTOR offset 0.0 -1.0 0.8 rotation 0.0 1.0 0.7 tilt 0.0 switchstyle 2
 0001: wait 500 ms
 0512: show_permanent_text_box 'CLOTHC' 
-03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
 0002: jump @BAR_5    
 
 :BAR_5
@@ -119,8 +122,7 @@ else
 00E1:   player 0 pressed_key 15 // GET IN CAR BUTTON
 jf @BAR_5
 03E6: remove_text_box 
-Player.CanMove($PLAYER_CHAR, True)
-03BF: set_player $PLAYER_CHAR ignored_by_everyone 0   
+Player.CanMove($PLAYER_CHAR, True)   
 097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
 02EB: restore_camera_with_jumpcut 
 0001: wait 5000 ms
@@ -130,10 +132,11 @@ end
 :BAR_6
 0001: wait 0 ms  
 0109: player $PLAYER_CHAR money = -10 
-097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1054    
+097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1054   
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 1  
 029B: 9@ = init_object 1486 at 0.0 0.0 0.0 
 0382: set_object 9@ collision_detection 0 
-01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0
+01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0      
 0605: actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "GANGS" framedelta 7.0 loop 0 lockX 0 lockY 0 lockF 0 time 800  
 0001: wait 800 ms 
 070A: AS_actor $PLAYER_ACTOR attach_to_object 9@ offset 0.06 0.015 -0.05 on_bone 6 16 perform_animation "DRNKBR_PRTL" IFP_file "GANGS" time 2300   
@@ -142,7 +145,8 @@ end
 0001: wait 500 ms 
 070B: set_actor $PLAYER_ACTOR onbone_attached_object_operation 1       
 0001: wait 0 ms 
-0108: destroy_object 9@   
+0108: destroy_object 9@ 
+03BF: set_player $PLAYER_CHAR ignored_by_everyone 0  
 0002: jump @BAR_7
 
 :BAR_7

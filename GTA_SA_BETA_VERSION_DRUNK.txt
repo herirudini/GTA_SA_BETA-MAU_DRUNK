@@ -83,15 +83,11 @@ jf @INIT
 077E: get_active_interior_to 21@
 0001: wait 0 ms  
 00D6: if
-21@ == 0    //OUTSIDE
-jf @BAR_2
-0002: jump @STREET
+21@ == 11    //BAR
+jf @STREET
+0002: jump @BAR_2
 
 :BAR_2 
-0001: wait 0 ms
-00D6: if
-21@ == 11      //BAR
-jf @INIT_0
 0001: wait 1500 ms  
 00D6: if or
 00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 0.5 0.5 on_foot 

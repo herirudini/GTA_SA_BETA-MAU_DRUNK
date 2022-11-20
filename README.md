@@ -22,7 +22,10 @@ as the time running, if you didn't takes any more substance, you'll slowly get s
 would back to normal
 
 HEALTH
-The more you take substance, the more you lost your health, stamina, and money
+The more you take substance, the more you lost your health and money
+
+VOMIT
+If CJ get too much drunk, he will vomit
 
 POLICE WANTED
 If you take the substance for too often, you will get one wanted level!

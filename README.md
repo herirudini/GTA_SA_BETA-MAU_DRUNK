@@ -30,5 +30,13 @@ If CJ get too much drunk, he will get vomit
 POLICE WANTED
 If CJ take the substance for too often, he will get one wanted level up!
 
-
+============================
+this mod works with any controler do you prefer!
+- Keyboard & mouse
+- Regular joypad
+- Playstasion GInput mod by Silent
+============================
 this mod is created by Heri Hover
+===
+enjoy
+:cheers

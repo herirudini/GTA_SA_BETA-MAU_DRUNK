@@ -353,7 +353,6 @@ end
 0001: wait 0 ms  
 0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
 0A1D: AS_actor 10@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
-06A8: AS_actor 10@ run_to_and_look_at_actor $PLAYER_ACTOR timelimit -1 approach_distance 0.7 approach_angle 0.0
 0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
 jump @BUY
 
@@ -408,12 +407,11 @@ jump @TALK
 end
 
 :BUY 
-0001: wait 0 ms       
+0001: wait 500 ms       
 0350: set_actor 10@ maintain_position_when_attacked 1 
 0446: set_actor 10@ dismemberment_possible 0 
 0568: set_actor 10@ untargetable 1 
-02AB: set_actor 10@ immunities BP 1 FP 1 EP 1 CP 1 MP 1   
-0605: actor 10@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1  
+02AB: set_actor 10@ immunities BP 1 FP 1 EP 1 CP 1 MP 1    
 01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0   
 Player.CanMove($PLAYER_CHAR, False)
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1
@@ -436,9 +434,7 @@ Player.CanMove($PLAYER_CHAR, False)
 0446: set_actor 10@ dismemberment_possible 1
 0568: set_actor 10@ untargetable 0 
 02AB: set_actor 10@ immunities BP 0 FP 0 EP 0 CP 0 MP 0
-01B9: set_actor 10@ armed_weapon_to 0 
-
-0001: wait 1200 ms    
+01B9: set_actor 10@ armed_weapon_to 0    
 09B6: set_actor 10@ wanted_by_police 1    
 jump @HIT 
 

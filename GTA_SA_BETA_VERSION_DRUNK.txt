@@ -237,10 +237,6 @@ return
 23@ == 0 // Free World
 jf @INIT_0
 0001: wait 0 ms
-00D6: if
-0038:   $ONMISSION == 0 
-jf @CHECK
-0001: wait 0 ms
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
 004D: jump_if_false @CHECK   
@@ -259,16 +255,25 @@ not Actor.Driving(10@)
 00D6: if 
 8118:   not actor 10@ dead 
 004D: jump_if_false @CHECK 
-0001: wait 0 ms
+0001: wait 0 ms  
 00D6: if or
-02F2:   actor 10@ model == #BMYDRUG 
+02F2:   actor 10@ model == #BMYDRUG
 02F2:   actor 10@ model == #WMYDRUG 
 02F2:   actor 10@ model == #HMYDRUG 
 02F2:   actor 10@ model == #BIKDRUG
 then 
-0001: wait 0 ms
+    0001: wait 0 ms 
+    00D6: if and
+    02F2:   actor 10@ model == #BMYDRUG
+    0038:   $ONMISSION == 1 //boolean
+    $SWEET_TOTAL_PASSED_MISSIONS == 1
+    then    
+    jump @CHECK  
+    else 
+    0001: wait 0 ms
+    end
 else 
-jump @CHECK
+jump @CHECK 
 end
 00D6: if
 089B:   unknown_is_actor_in_dialogue_mode 10@
@@ -428,7 +433,7 @@ Player.CanMove($PLAYER_CHAR, False)
 0812: AS_actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
 0A09: set_actor 10@ muted 0
 05C1: AS_actor 10@ speak_from_audio_table 84  
-0001: wait 1500 ms         
+0001: wait 3000 ms         
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
 0350: set_actor 10@ maintain_position_when_attacked 0 
 0446: set_actor 10@ dismemberment_possible 1

@@ -12,10 +12,10 @@ the more CJ drink the higher he will get drunk, and the longer the duration is
 
 CRACK
 aproach the crack dealer, say YES
-the more you takes, the more you'll get
+the more he takes, the more he will get
 
 COMBINE
-DRINK and CRACK have their different behaviour, and if you combine it you will get different results too!
+DRINK and CRACK have their different behaviour, and if it combined it will get different results too!
 
 TAPPERING OFF
 as the time running, if CJ didn't takes any more substance, he'll slowly get sober, and in the mean time everything 
@@ -35,8 +35,10 @@ this mod works with any controler do you prefer!
 - Keyboard & mouse
 - Regular joypad
 - Playstasion GInput mod by Silent
+
 ============================
 this mod is created by Heri Hover
+
 ===
 enjoy
 :cheers

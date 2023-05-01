@@ -20,16 +20,16 @@
 // 24@ = PUKE VOMIT
 // 25@ = Player Money
            
-{$CLEO .cs} 
+{$CLEO} 
 
 03A4: name_thread 'BETA_DRUNK'
 :LOAD
 0001: wait 0 ms  
-03BC: 4@ = create_sphere_at -224.9712 1403.863 27.7734 radius 0.5 
-03BC: 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 
-03BC: 6@ = create_sphere_at 499.824 -18.8112 1000.672 radius 0.5 
-03BC: 7@ = create_sphere_at 1207.4664 -28.3249 1000.9531 radius 0.5
-03BC: 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5   
+03BC: 4@ = create_sphere_at -223.31394958 1409.38146973 27.7734127045 radius 0.5 // LIL PROB INN
+03BC: 5@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5 // STRIP CLUB 1
+03BC: 6@ = create_sphere_at 501.8262 -15.284752845 1000.671875 radius 0.5 // DANCE CLUB
+03BC: 7@ = create_sphere_at 1206.22631836 -26.505908966 1000.953125 radius 0.5 // STRIP CLUB 2
+03BC: 8@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5 // BAR
 var
     0@: Integer    // DRUNK LEVEL , ACTUAL MAX = 220, BUT WE USE 200 AS MAX POINT BECAUSE IN THIS MOD WE USE TIMING FOR "TAPPERING OFF" AND CJ CAN "COMBINE" BOTH DRUG AND BEER (DIFFERENT BEHAVIOUR) SO WE NEED TO BE SAFE FOR CALCULATE EVERYTHING AND THEN USE 200 AS OUR MAX POINT, SAY THE MOST POSSIBLE OFFESET CALCULATION WOULDBE 219, AND THE VALUE WILL BE REVERT TO 200, IT IS BETTER THAN IF THE CALCULATION OFFSET OVER 220 AND THE CAMERA RESET TO NORMAL.
     1@: Integer    // SKY MODE
@@ -90,19 +90,23 @@ jf @INIT
 0001: wait 0 ms
 077E: get_active_interior_to 23@   
 0001: wait 0 ms  
-00D6: if
-23@ == 11    //BAR
+00D6: if or
+23@ == 17    // DANCE CLUB
+23@ == 2     // STRIP CLUB 1
+23@ == 3     // STRIP CLUB 2 (OLD VENTURAS)
+23@ == 11    // BAR
+23@ == 18    // LIL PROB IN
 jf @STREET
 0002: jump @BAR_2
 
 :BAR_2 
 0001: wait 1500 ms  
 00D6: if or
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 0.5 0.5 on_foot 
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point -224.9712 1403.863 radius 0.5 0.5 on_foot
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1215.366 -13.1901 radius 0.5 0.5 on_foot 
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 499.824 -18.8112 radius 0.5 0.5 on_foot
-00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1207.4664 -28.3249 radius 0.5 0.5 on_foot
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 497.7207 -75.908 radius 0.5 0.5 on_foot // BAR
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point -223.31394958 1409.38146973 radius 0.5 0.5 on_foot // LIL PROB INN
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1215.366 -13.1901 radius 0.5 0.5 on_foot // STRIP CLUB 1
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 501.8262 -15.284752845 radius 0.5 0.5 on_foot // DANCE CLUB
+00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1206.22631836 -26.505908966 radius 0.5 0.5 on_foot // STRIP CLUB 2
 jf @BAR_1    
 Player.CanMove($PLAYER_CHAR, False)
 0001: wait 0 ms

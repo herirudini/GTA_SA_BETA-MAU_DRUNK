@@ -108,7 +108,7 @@ Player.CanMove($PLAYER_CHAR, False)
 0173: set_actor $PLAYER_ACTOR Z_angle_to 180.0  
 067C: put_camera_on_actor $PLAYER_ACTOR offset 0.0 -1.0 0.8 rotation 0.0 1.0 0.7 tilt 0.0 switchstyle 2
 0001: wait 500 ms
-0512: show_permanent_text_box 'CLOTHC' 
+0512: print_help 'CLOTHC' 
 0002: jump @BAR_5    
 
 :BAR_5
@@ -116,7 +116,7 @@ Player.CanMove($PLAYER_CHAR, False)
 00D6: if 
 00E1:   player 0 pressed_key 16 // SPRINT BUTTON
 then
-03E6: remove_text_box
+03E6: remove_text_box 'CLOTHC'
     00D6: if 
     25@ < 10
     then
@@ -133,7 +133,7 @@ else
 00D6: if 
 00E1:   player 0 pressed_key 15 // GET IN CAR BUTTON
 jf @BAR_5
-03E6: remove_text_box 
+03E6: remove_text_box 'CLOTHC'
 Player.CanMove($PLAYER_CHAR, True)   
 097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
 02EB: restore_camera_with_jumpcut 
@@ -170,7 +170,6 @@ Inc(0@,10)
 0002: jump @DRUNK 
 else 
 0@ = 200 // MAXIMUM DRUNK LEVEL
-2@ = 1000 // DURATION HALF SECOND
 Player.CanMove($PLAYER_CHAR, True)   
 02EB: restore_camera_with_jumpcut 
 gosub @VOMIT  
@@ -214,7 +213,8 @@ else
 end 
 
 :VOMIT
-0001: wait 0 ms 
+0001: wait 0 ms
+Player.CanMove($PLAYER_CHAR, False)
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
 0812: AS_actor $PLAYER_ACTOR perform_animation "EAT_VOMIT_P" IFP "FOOD" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time -1 // versionB  
 0001: wait 3900 ms
@@ -224,9 +224,10 @@ end
 22@ -= 0.200 
 064B: 24@ = create_particle "PUKE" at 20@ 21@ 22@ type 1 
 0947: actor $PLAYER_ACTOR speak_from_audio_table 353 store_spoken_phrase_id_to $2563
-064C: make_particle 24@ visible 
+064C: make_particle 24@ visible
 0001: wait 1500 ms
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
+Player.CanMove($PLAYER_CHAR, True)
 return
 
 :STREET  
@@ -290,13 +291,13 @@ jump @CHECK
 else
 end    
 00D6: if or  
-071A:   actor 10@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
-071A:   actor 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
+071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
+071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
 then 
 0A09: set_actor $PLAYER_ACTOR muted 1 
-0512: show_permanent_text_box 'TALK_1' 
+0512: print_help 'TALK_1' 
     00D6: if
-    071A:   actor 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
+    071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
     then                
     0708: reset_decision_maker $9453 event 38 
     0709: set_decision_maker $9453 on_event 38 taskID 927 respect 0.0 hate 0.0 like 100.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files 
@@ -327,7 +328,7 @@ end
 00D6: if
 00E1:   player 0 pressed_key 11 //Ginput Right 
 then 
-03E6: remove_text_box 'TALK_1'  
+03E6: remove_text_box 'TALK_1'
 0A09: set_actor 10@ muted 1                  
 else
 004D: jump @TALK_0
@@ -374,7 +375,7 @@ jump @CHECK
 end 
 if or
 00E1:   player 0 pressed_key 10  // Ginput Left Pad 
-071A:   actor 10@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
+071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
 then  
 03E6: remove_text_box 'TALK_1'
 0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
@@ -383,7 +384,7 @@ then
 05BF: AS_actor $PLAYER_ACTOR look_at_actor 10@ 100 ms
     if and
     11@ == 0
-    071A:   actor 10@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
+    071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
     then
     0001: wait 0 ms 
     077A: set_actor 10@ acquaintance 4 to_actors_pedtype 0 // see ped.dat HATE TO PLAYER
@@ -393,7 +394,7 @@ then
     jump @INIT_0   
     else  
         00D6: if
-        071A:   actor 10@ current_dialogue_text == 'DEAL2'
+        071A:   is_conversation_at_node 10@ current_dialogue_text == 'DEAL2'
         then
         05DE: AS_actor 10@ walk_around_ped_path
         0001: wait 3000 ms   

@@ -53,7 +53,6 @@ end
 
 :INIT 
 0001: wait 0 ms
-03E6: remove_text_box 'TALK_1' 
 00D6: if 
 04EE:   animation "GANGS" loaded 
 jf @LOAD_0
@@ -72,7 +71,6 @@ jf @LOAD_0
 
 :INIT_0
 0001: wait 0 ms
-03E6: remove_text_box 'TALK_1'
 00D6: if 
 0256:   player $PLAYER_CHAR defined 
 jf @INIT
@@ -84,7 +82,6 @@ jf @INIT
 
 :BAR_1
 0001: wait 0 ms
-03E6: remove_text_box 'TALK_1'
 077E: get_active_interior_to 23@     
 00D6: if or
 23@ == 17    // DANCE CLUB
@@ -133,10 +130,10 @@ else
 00D6: if 
 00E1:   player 0 pressed_key 15 // GET IN CAR BUTTON
 jf @BAR_5
-03E6: remove_text_box 'CLOTHC'
 Player.CanMove($PLAYER_CHAR, True)   
 097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
 02EB: restore_camera_with_jumpcut 
+03E6: remove_text_box 'CLOTHC'
 0001: wait 3000 ms
 0002: jump @BAR_2
 end
@@ -180,8 +177,7 @@ gosub @VOMIT
 end  
 
 :CHECK
-0001: wait 0 ms
-03E6: remove_text_box 'TALK_1' 
+0001: wait 0 ms 
 if
 0@ > 0
 then   
@@ -193,8 +189,7 @@ else
 end  
   
 :DRUNK 
-0001: wait 0 ms
-03E6: remove_text_box 'TALK_1'                   
+0001: wait 0 ms                  
 052C: set_player $PLAYER_CHAR drunk_visuals 0@    
 if and
 1@ == 1
@@ -235,35 +230,28 @@ return
 00D6: if
 23@ == 0 // Free World
 jf @INIT_0
-03E6: remove_text_box 'TALK_1' 
 00D6: if 
 not Actor.Driving($PLAYER_ACTOR)
-004D: jump_if_false @CHECK   
-03E6: remove_text_box 'TALK_1'       
+004D: jump_if_false @CHECK        
 0AB5: store_char $PLAYER_ACTOR closest_vehicle_to 14@ closest_ped_to 10@
 00D6: if 
 056D: actor 10@ defined 
 004D: jump_if_false @CHECK
-03E6: remove_text_box 'TALK_1' 
 00D6: if 
 not Actor.Driving(10@)
-004D: jump_if_false @CHECK  
-03E6: remove_text_box 'TALK_1'  
+004D: jump_if_false @CHECK   
 00D6: if 
 8118:   not actor 10@ dead 
 004D: jump_if_false @CHECK 
-03E6: remove_text_box 'TALK_1'
 00D6: if
 00F3:   actor $PLAYER_ACTOR near_actor 10@ radius 4.9 4.9 sphere 0 on_foot
-004D: jump_if_false @CHECK
-03E6: remove_text_box 'TALK_1'   
+004D: jump_if_false @CHECK   
 00D6: if or
 02F2:   actor 10@ model == #BMYDRUG
 02F2:   actor 10@ model == #WMYDRUG 
 02F2:   actor 10@ model == #HMYDRUG 
 02F2:   actor 10@ model == #BIKDRUG
 then 
-    03E6: remove_text_box 'TALK_1' 
     00D6: if and
     02F2:   actor 10@ model == #BMYDRUG
     0038:   $ONMISSION == 1 //boolean
@@ -271,7 +259,6 @@ then
     then    
     jump @CHECK  
     else 
-    03E6: remove_text_box 'TALK_1' 
     end
 else 
 jump @CHECK 

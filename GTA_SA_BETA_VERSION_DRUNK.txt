@@ -23,7 +23,7 @@
 
 :BETA_DRUNK
 // delay a bit after game start
-wait 2500
+0001: wait 2500
 // ===== LIL PROB INN =====
 03BC: 29@ = create_sphere_at -223.3139 1409.3814 27.7734 radius 0.5
 // ===== STRIP CLUB 1 =====
@@ -444,7 +444,7 @@ end
 0605: actor -1 perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms  
 0616: define_AS_pack_end 7@
 0618: assign_actor $PLAYER_ACTOR to_AS_pack 7@
-wait 7000 
+0001: wait 7000 
 0851: set_actor $PLAYER_ACTOR decrease_health_by 1 affect_armour 0 
 jump @HIT_0
 

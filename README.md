@@ -40,5 +40,7 @@ this mod works with any controler do you prefer!
 this mod is created by Heri Hover
 
 ===
+If you don't know where are bar/club locations, you can make CJ dating with his GF, or download Mod by Junior Djir named "More Radar Icons", to make bar/club icon shown in the map
+
 enjoy
 :cheers

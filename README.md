@@ -3,6 +3,14 @@ copy the .cs file to the 'cleo' folder
 
 download and install CLEO 4.0 first if you dont have
 
+=============OPTIONAL===============
+You can copy pedgrp.dat and popcycle.dat into data folder and replace existing files.
+This is to fix a "bug" i found during creating this mod.
+While creating this mod i only able to find crack dealer type black and hoodie, and also those
+peds only available in los santos.
+
+In my opinion, all version of crack dealer should be exist in every city, just like hookers does.
+
 
 ===============This is the most realistic drunk mod=================
 

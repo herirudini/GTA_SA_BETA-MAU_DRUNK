@@ -170,7 +170,7 @@ end
 0001: wait 0 ms 
 if 0@ < 190
 then
-Inc(0@,10)     
+Inc(0@,30)     
 0002: jump @DRUNK 
 else 
 0@ = 200 // MAXIMUM DRUNK LEVEL
@@ -217,17 +217,25 @@ end
 :VOMIT
 0001: wait 0 ms
 Player.CanMove($PLAYER_CHAR, False)
+03CF: load_mission_audio 1828 as 4
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
-0812: AS_actor $PLAYER_ACTOR perform_animation "EAT_VOMIT_P" IFP "FOOD" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time -1 // versionB  
+0812: AS_actor $PLAYER_ACTOR perform_animation "EAT_VOMIT_P" IFP "FOOD" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time -1 // versionB
+0947: actor $PLAYER_ACTOR speak_from_audio_table 353 store_spoken_phrase_id_to $2563  
 0001: wait 3900 ms
 04C4: store_coords_to 10@ 11@ 12@ from_actor $PLAYER_ACTOR with_offset 0.0 0.0 0.0
 10@ -= 0.360 
 11@ += 0.130 
 12@ -= 0.200 
-064B: 14@ = create_particle "PUKE" at 10@ 11@ 12@ type 1 
-0947: actor $PLAYER_ACTOR speak_from_audio_table 353 store_spoken_phrase_id_to $2563
-064C: make_particle 14@ visible
+064B: 14@ = create_fx_system "PUKE" at 10@ 11@ 12@ type 1 
+064C: play_fx_system 14@
+if
+03D0: has_mission_audio_loaded 4
+then
+09F1: report_mission_audio_event_at_char $PLAYER_ACTOR event 1169
+end
 0001: wait 1500 ms
+064E: stop_fx_system 14@
+0650: kill_fx_system 14@
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
 Player.CanMove($PLAYER_CHAR, True)
 return

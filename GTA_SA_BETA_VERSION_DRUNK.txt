@@ -272,30 +272,23 @@ then
     0038:   $ONMISSION == 1 //boolean
     $SWEET_TOTAL_PASSED_MISSIONS == 1
     then    
-    jump @CHECK  
-    else 
+    jump @CHECK   
     end
 else 
 jump @CHECK 
 end
-00D6: if
-089B:   unknown_is_actor_in_dialogue_mode 5@
-then 
-03E6: remove_text_box 'TALK_1'
-else
-jump @CHECK
-end 
 00D6: if or
 074F:   actor 5@ ped_event == 9 //damaged
 074F:   actor 5@ ped_event == 65 //EVENT_SEEN_PANICKED_PED
+074F:   actor 5@ ped_event == 36 //Hate
 then
 jump @CHECK
-else
 end    
 00D6: if or  
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
-then 
+then
+03E6: remove_text_box 'TALK_1' 
 0A09: set_actor $PLAYER_ACTOR muted 1 
 03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
 

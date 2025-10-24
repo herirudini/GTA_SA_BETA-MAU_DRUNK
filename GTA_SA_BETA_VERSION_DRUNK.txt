@@ -280,7 +280,11 @@ end
 00D6: if or
 074F:   actor 5@ ped_event == 9 //damaged
 074F:   actor 5@ ped_event == 65 //EVENT_SEEN_PANICKED_PED
-074F:   actor 5@ ped_event == 36 //Hate
+074F:   actor 5@ ped_event == 36 //Ped Hate
+074F:   actor 5@ ped_event == 12 //Potential run over by car
+074F:   actor 5@ ped_event == 50 //Angry at player
+074F:   actor 5@ ped_event == 51 //Angry at player
+074F:   actor 5@ ped_event == 75 //Danger situation
 then
 jump @CHECK
 end    
@@ -288,18 +292,18 @@ end
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
 then
+0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
+0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
+0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
 03E6: remove_text_box 'TALK_1' 
 0A09: set_actor $PLAYER_ACTOR muted 1 
 03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
-
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
     00D6: if
     071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
     then                
     0708: reset_decision_maker $9453 event 38 
     0709: set_decision_maker $9453 on_event 38 taskID 927 respect 0.0 hate 0.0 like 100.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files 
     0A47: set_dialogue_mode_enabled_without_GXT            
-    0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR
     0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1  
     jump @TALK
     else
@@ -345,9 +349,6 @@ else
 0A09: set_actor $PLAYER_ACTOR muted 0
 jump @STREET
 end  
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
-0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
-0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
 jump @BUY
 
 :TALK_0 // CHECK IF CJ RESPONSE ~NO~ OR JUST IGNORE THE DEALER

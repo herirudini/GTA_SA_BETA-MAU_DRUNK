@@ -15,7 +15,7 @@
 // 13@ = actor PLAYER current interior
 // 14@ = PUKE VOMIT
 // 15@ = Player Money
-// the rest is bar location coordinates
+// 16@ 17@ 18@ 19@ 20@ = bar location coordinates
            
 {$CLEO} 
 
@@ -25,15 +25,15 @@
 // delay a bit after game start
 0001: wait 2500
 // ===== LIL PROB INN =====
-03BC: 29@ = create_sphere_at -223.3139 1409.3814 27.7734 radius 0.5
+03BC: 16@ = create_sphere_at -223.3139 1409.3814 27.7734 radius 0.5
 // ===== STRIP CLUB 1 =====
-03BC: 30@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5
+03BC: 17@ = create_sphere_at 1215.366 -13.1901 1000.922 radius 0.5
 // ===== DANCE CLUB =====
-03BC: 31@ = create_sphere_at 501.8262 -15.2847 1000.6719 radius 0.5
+03BC: 18@ = create_sphere_at 501.8262 -15.2847 1000.6719 radius 0.5
 // ===== STRIP CLUB 2 =====
-03BC: 32@ = create_sphere_at 1206.2263 -26.5059 1000.9531 radius 0.5
+03BC: 19@ = create_sphere_at 1206.2263 -26.5059 1000.9531 radius 0.5
 // ===== BAR =====
-03BC: 33@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5
+03BC: 20@ = create_sphere_at 497.7207 -75.908 998.7578 radius 0.5
 jump @LOAD
 
 :LOAD
@@ -278,40 +278,51 @@ else
 jump @CHECK 
 end
 00D6: if or
-074F:   actor 5@ ped_event == 9 //damaged
-074F:   actor 5@ ped_event == 65 //EVENT_SEEN_PANICKED_PED
-074F:   actor 5@ ped_event == 36 //Ped Hate
-074F:   actor 5@ ped_event == 12 //Potential run over by car
-074F:   actor 5@ ped_event == 50 //Angry at player
-074F:   actor 5@ ped_event == 51 //Angry at player
-074F:   actor 5@ ped_event == 75 //Danger situation
+074F:   is_char_responding_to_event 5@ event 31 //being aimed by CJ
+074F:   is_char_responding_to_event 5@ event 36 //Ped Hate DEAL3
+074F:   is_char_responding_to_event 5@ event 9 //damaged
+074F:   is_char_responding_to_event 5@ event 65 //EVENT_SEEN_PANICKED_PED
+074F:   is_char_responding_to_event 5@ event 63 //Hate Badly
+074F:   is_char_responding_to_event 5@ event 50 //Angry at player
+074F:   is_char_responding_to_event 5@ event 51 //Angry at player
 then
 jump @CHECK
-end    
-00D6: if or  
+end
+if or
+  has_char_been_damaged_by_char 5@ damaged_by_actor $PLAYER_ACTOR
+  is_player_targetting_char $PLAYER_CHAR aiming_at_actor 5@
+then
+jump @CHECK
+end
+Actor.StorePos($PLAYER_ACTOR, 20@, 21@, 22@)
+get_random_char_in_sphere_only_drugs_buyers 20@ 21@ 22@ radius 5.0 handle_as 23@
+if 
+  23@ == -1
+goto_if_false @CHECK
+00D6: if and
+09F2:   does_decision_maker_exist $9453
+089B:   is_player_in_position_for_conversation 5@
+004D: jump_if_false @CHECK
+07BC: task_set_char_decision_maker 5@ to $9453    
+00D6: if or
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
 then
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm  
-0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
-0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
+00D6: if 
+071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN
+then 
+0A09: set_actor 5@ muted 1
+end
+0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
 03E6: remove_text_box 'TALK_1' 
+0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
+0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1 
 0A09: set_actor $PLAYER_ACTOR muted 1 
-03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
-    00D6: if
-    071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
-    then                
-    0708: reset_decision_maker $9453 event 38 
-    0709: set_decision_maker $9453 on_event 38 taskID 927 respect 0.0 hate 0.0 like 100.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files 
-    0A47: set_dialogue_mode_enabled_without_GXT            
-    0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1  
-    jump @TALK
-    else
-    jump @TALK
-    end
-else       
-0A09: set_actor $PLAYER_ACTOR muted 1 
+03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1 
 jump @TALK
+else
+0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm       
+jump @TALK_0 // Will be straight to DEAL3 condition
 end   
 
 :TALK  
@@ -328,16 +339,16 @@ end
 00D6: if
 00E1:   player 0 pressed_key 11 //Ginput Right 
 then 
-03E6: remove_text_box 'TALK_1'
-0A09: set_actor 5@ muted 1                  
+03E6: remove_text_box 'TALK_1'                  
 else
 004D: jump @TALK_0
 end 
 00D6: if 
 15@ > 10
 then
+0639: task_turn_char_to_face_char 5@ char $PLAYER_ACTOR
+0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
 else
-05DE: AS_actor 5@ walk_around_ped_path
 00BC: show_text_highpriority GXT 'SHOPNO' time 5000 flag 1     // dont have enough money, cannot buy at this time   
 0001: wait 5000 ms
 004D: jump @CHECK
@@ -374,33 +385,33 @@ if or
 00E1:   player 0 pressed_key 10  // Ginput Left Pad 
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
 then  
-03E6: remove_text_box 'TALK_1'
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
+03E6: remove_text_box 'TALK_1' 
 0A09: set_actor $PLAYER_ACTOR muted 0
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
 05BF: AS_actor $PLAYER_ACTOR look_at_actor 5@ 100 ms
-    if and
-    6@ == 0
-    071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
+0708: clear_char_decision_maker_event_response $9453 event 36 // reset 0709: event decision Hate
+0708: clear_char_decision_maker_event_response $9453 event 37 // reset 0709: event decision Dislike
+077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // 4 = Dislike
+    if 
+    6@ > 0 
     then
-    0001: wait 0 ms 
-    077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // see ped.dat HATE TO PLAYER
-    0708: reset_decision_maker $9453 event 36 
-    0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 50.0 like 0.0 dislike 0.0 in_car 1 on_foot 1 // see *.ped files  
-    0001: wait 3000 ms
-    jump @INIT_0   
-    else  
-        00D6: if
-        071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2'
+        0001: wait 0 ms
+        01B9: set_current_char_weapon 5@ armed_weapon_to 22
+        if
+        071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN
         then
-        05DE: AS_actor 5@ walk_around_ped_path
-        0001: wait 3000 ms   
-        jump @INIT_0 
+        //1020 = TASK_SIMPLE_GUN_CTRL
+        //1000 = TASK_COMPLEX_KILL_PED_ON_FOOT
+        0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
         else
-        0001: wait 3000 ms   
-        jump @INIT_0 
+        0709: set_decision_maker $9453 on_event 37 taskID 1020 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
         end
-    end    
+    else
+    01B9: set_current_char_weapon 5@ armed_weapon_to 0
+    0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
+    end  
+    0001: wait 500 ms
+    jump @INIT_0       
 else 
 jump @TALK
 end
@@ -442,10 +453,7 @@ end
 
 :HIT
 0001: wait 100 ms
-0615: define_AS_pack_begin 7@
-0605: actor -1 perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms  
-0616: define_AS_pack_end 7@
-0618: assign_actor $PLAYER_ACTOR to_AS_pack 7@
+0605: actor $PLAYER_ACTOR perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms
 0001: wait 7000 
 0851: set_actor $PLAYER_ACTOR decrease_health_by 1 affect_armour 0 
 jump @HIT_0
@@ -490,12 +498,17 @@ Player.CanMove($PLAYER_CHAR, False)
 return
 
 :DEAL_END
-0001: wait 0 ms 
+0001: wait 0 ms
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
 0350: set_actor 5@ maintain_position_when_attacked 0 
 0446: set_actor 5@ dismemberment_possible 1
 0568: set_actor 5@ untargetable 0 
 02AB: set_actor 5@ immunities BP 0 FP 0 EP 0 CP 0 MP 0
-01B9: set_actor 5@ armed_weapon_to 0 
+01B9: set_actor 5@ armed_weapon_to 0
 Player.CanMove($PLAYER_CHAR, True)
+077A: set_actor 5@ acquaintance 1 to_actors_pedtype 0  //Like or respect
+0709: set_decision_maker $9453 on_event 39 taskID 276 respect 100.0 hate 0.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
+0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time 5000
+0001: wait 1000 ms
+Actor.RemoveReferences(5@)
 return

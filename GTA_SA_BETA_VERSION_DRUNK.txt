@@ -16,8 +16,8 @@
 // 14@ = PUKE VOMIT
 // 15@ = Player Money
 // 16@ 17@ 18@ 19@ 20@ = bar location coordinates
-           
-{$CLEO} 
+            
+{$CLEO}
 
 03A4: name_thread 'BETA_DRUNK'
 
@@ -78,11 +78,13 @@ end
 
 :INIT_0
 0001: wait 0 ms
+00D6: if
+0117: is_player_dead 0 
+then
+jump @INIT
+end
 00D6: if 
 0256:   player $PLAYER_CHAR defined 
-004D: jump_if_false @INIT
-00D6: if
-8118:   not actor $PLAYER_ACTOR dead 
 004D: jump_if_false @INIT     
 15@ = Player.Money($PLAYER_CHAR)  
 0002: jump @BAR_1
@@ -108,7 +110,7 @@ end
 00ED:   actor $PLAYER_ACTOR sphere -1 near_point 501.8262 -15.284752845 radius 0.5 0.5 on_foot // DANCE CLUB
 00ED:   actor $PLAYER_ACTOR sphere -1 near_point 1206.22631836 -26.505908966 radius 0.5 0.5 on_foot // STRIP CLUB 2
 004D: jump_if_false @BAR_1    
-Player.CanMove($PLAYER_CHAR, False)
+01B4: set_player_control $PLAYER_CHAR to 0
 0173: set_actor $PLAYER_ACTOR Z_angle_to 180.0  
 067C: put_camera_on_actor $PLAYER_ACTOR offset 0.0 -1.0 0.8 rotation 0.0 1.0 0.7 tilt 0.0 switchstyle 2
 0001: wait 500 ms
@@ -124,7 +126,7 @@ then
     00D6: if 
     15@ < 10
     then
-    Player.CanMove($PLAYER_CHAR, True)   
+    01B4: set_player_control $PLAYER_CHAR to 1   
     097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
     02EB: restore_camera_with_jumpcut 
     00BC: show_text_highpriority GXT 'SHOPNO' time 5000 flag 1     // dont have enough money, cannot buy at this time
@@ -137,7 +139,7 @@ else
 00D6: if 
 00E1:   player 0 pressed_key 15 // GET IN CAR BUTTON
 004D: jump_if_false @BAR_5
-Player.CanMove($PLAYER_CHAR, True)   
+01B4: set_player_control $PLAYER_CHAR to 1   
 097A: play_audio_at $TEMPVAR_X_COORD $TEMPVAR_Y_COORD $TEMPVAR_Z_COORD event 1055
 02EB: restore_camera_with_jumpcut 
 03E6: remove_text_box 'CLOTHC'
@@ -171,11 +173,17 @@ end
 00D6: if 
 0@ < 190
 then
-Inc(0@,30)     
+Inc(0@,30)
+if
+0@ == 120
+then
+0624: increment_float_stat 21 by 0.1 // Increase fat
+08F8: display_stat_update_box 21
+end     
 0002: jump @DRUNK 
 else 
 0@ = 200 // MAXIMUM DRUNK LEVEL
-Player.CanMove($PLAYER_CHAR, True)   
+01B4: set_player_control $PLAYER_CHAR to 1   
 02EB: restore_camera_with_jumpcut 
 gosub @VOMIT  
 00BC: show_text_highpriority GXT 'FOOD1' time 5000 flag 1
@@ -217,7 +225,7 @@ end
 
 :VOMIT
 0001: wait 0 ms
-Player.CanMove($PLAYER_CHAR, False)
+01B4: set_player_control $PLAYER_CHAR to 0
 03CF: load_mission_audio 1828 as 4
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1 
 0812: AS_actor $PLAYER_ACTOR perform_animation "EAT_VOMIT_P" IFP "FOOD" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time -1 // versionB
@@ -238,7 +246,7 @@ end
 064E: stop_fx_system 14@
 0650: kill_fx_system 14@
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0
-Player.CanMove($PLAYER_CHAR, True)
+01B4: set_player_control $PLAYER_CHAR to 1
 return
 
 :STREET  
@@ -257,10 +265,12 @@ not Actor.Driving($PLAYER_ACTOR)
 not Actor.Driving(5@)
 004D: jump_if_false @CHECK   
 00D6: if 
-8118:   not actor 5@ dead 
-004D: jump_if_false @CHECK 
+0118: is_char_dead 5@
+then
+004D: jump @CHECK
+end
 00D6: if
-00F3:   actor $PLAYER_ACTOR near_actor 5@ radius 4.9 4.9 sphere 0 on_foot
+00F3:   actor $PLAYER_ACTOR near_actor 5@ radius 5.0 5.0 sphere 0 on_foot
 004D: jump_if_false @CHECK   
 00D6: if or
 02F2:   actor 5@ model == #BMYDRUG
@@ -307,26 +317,25 @@ end
 09F2:   does_decision_maker_exist $9453
 089B:   is_player_in_position_for_conversation 5@
 004D: jump_if_false @CHECK
-07BC: task_set_char_decision_maker 5@ to $9453    
-00D6: if or
-071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL1' // YOU WANNA SOME? 
-071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
+07BC: task_set_char_decision_maker 5@ to $9453
+00D6: if
+071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // YOU WANNA SOME?
 then
-00D6: if 
-071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN
-then 
-0A09: set_actor 5@ muted 1
-end
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm 
-03E6: remove_text_box 'TALK_1' 
-0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR  
-0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1 
-0A09: set_actor $PLAYER_ACTOR muted 1 
-03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1 
-jump @TALK
+0459: end_script_named 'DEALER' // DEAL3 means CJ refuses to buy since the first offer, stop the script start from here      
+jump @TALK_0 // Will be straight to DEAL3 condition (will just continue the fight loop)
 else
-0459: end_script_named 'DEALER' // IMPORTANT! THIS IS NEEDED TO STOP THREAD NAMED :DEALER FROM main.scm       
-jump @TALK_0 // Will be straight to DEAL3 condition
+    0A09: set_actor $PLAYER_ACTOR muted 1
+    00D6: if
+    071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
+    then
+    0459: end_script_named 'DEALER' // DEAL2 means CJ has bought to the same dealer or this mod failed to go through the DEAL1 logic flow, stop the script start from here
+    03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
+    05C1: AS_actor 5@ speak_from_audio_table 192
+    end
+    0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR
+    0639: task_turn_char_to_face_char 5@ char $PLAYER_ACTOR  
+    0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1 
+    jump @TALK
 end   
 
 :TALK  
@@ -341,30 +350,22 @@ then
 else
 end  
 00D6: if
-00E1:   player 0 pressed_key 11 //Ginput Right 
-then 
-03E6: remove_text_box 'TALK_1'                  
+00E1: player 0 pressed_key 11 //Ginput Right 
+then
+    00D6: if 
+    15@ < 10
+    then
+    00BC: show_text_highpriority GXT 'SHOPNO' time 5000 flag 1     // dont have enough money, cannot buy at this time   
+    0001: wait 5000 ms
+    004D: jump @CHECK
+    else
+    0459: end_script_named 'DEALER' // the DEAL1 logic flow must have stop script start from here
+    03E6: remove_text_box 'TALK_1'
+    jump @BUY
+    end
 else
 004D: jump @TALK_0
-end 
-00D6: if 
-15@ > 10
-then
-0639: task_turn_char_to_face_char 5@ char $PLAYER_ACTOR
-0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
-else
-00BC: show_text_highpriority GXT 'SHOPNO' time 5000 flag 1     // dont have enough money, cannot buy at this time   
-0001: wait 5000 ms
-004D: jump @CHECK
 end
-00D6: if
-8118:   not actor 5@ dead 
-then  
-else
-0A09: set_actor $PLAYER_ACTOR muted 0
-jump @STREET
-end  
-jump @BUY
 
 :TALK_0 // CHECK IF CJ RESPONSE ~NO~ OR JUST IGNORE THE DEALER
 0001: wait 0 ms 
@@ -389,13 +390,13 @@ end
 00E1:   player 0 pressed_key 10  // Ginput Left Pad 
 071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN 
 then  
-03E6: remove_text_box 'TALK_1' 
-0A09: set_actor $PLAYER_ACTOR muted 0
-05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
-05BF: AS_actor $PLAYER_ACTOR look_at_actor 5@ 100 ms
-0708: clear_char_decision_maker_event_response $9453 event 36 // reset 0709: event decision Hate
-0708: clear_char_decision_maker_event_response $9453 event 37 // reset 0709: event decision Dislike
-077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // 4 = Dislike
+    03E6: remove_text_box 'TALK_1' 
+    0A09: set_actor $PLAYER_ACTOR muted 0
+    05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
+    05BF: AS_actor $PLAYER_ACTOR look_at_actor 5@ 100 ms
+    0708: clear_char_decision_maker_event_response $9453 event 36 // reset 0709: event decision Hate
+    0708: clear_char_decision_maker_event_response $9453 event 37 // reset 0709: event decision Dislike
+    077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // 4 = Dislike
     00D6: if 
     6@ > 0 
     then
@@ -420,9 +421,18 @@ else
 jump @TALK
 end
 
-:BUY 
-0001: wait 500 ms    
+:BUY
+0001: wait 0 ms 
+00D6: if
+0118: is_char_dead 5@
+then
+0A09: set_actor $PLAYER_ACTOR muted 0
+jump @STREET
+end
 gosub @DEAL_READY
+0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR
+0639: task_turn_char_to_face_char 5@ char $PLAYER_ACTOR 
+0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1    
 0A09: set_actor $PLAYER_ACTOR muted 0
 05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 194 
 06A8: AS_actor $PLAYER_ACTOR run_to_and_look_at_actor 5@ timelimit -1 approach_distance 0.7 approach_angle 0.0
@@ -430,36 +440,44 @@ gosub @DEAL_READY
 0812: AS_actor $PLAYER_ACTOR perform_animation "SHOP_PAY" IFP "DEALER" framedelta 4.0 loopA 1 lockX 0 lockY 0 lockF 0 time 3000
 0001: wait 3000 ms
 00D6: if or
-074F:   actor 5@ ped_event == 9
-074F:   actor 5@ ped_event == 65
+074F: actor 5@ ped_event == 9 //received damage in any way
+074F: actor 5@ ped_event == 65 //seen panicked
 then
-gosub @DEAL_END
-jump @CHECK
+    gosub @DEAL_END
+    jump @CHECK 
 else
-end
-00D6: if
-00F3:   actor $PLAYER_ACTOR near_actor 5@ radius 2.0 2.0 sphere 0 on_foot  // FIX: cancel buy if the dealer run away
-then
-0109: player $PLAYER_CHAR money = -20
-0687: clear_actor 5@ task    
-0812: AS_actor 5@ perform_animation "DEALER_DEAL" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
-0812: AS_actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
-0A09: set_actor 5@ muted 0
-05C1: AS_actor 5@ speak_from_audio_table 84  
-0001: wait 3000 ms         
-gosub @DEAL_END
-09B6: set_actor 5@ wanted_by_police 1    
-jump @HIT 
-else
-gosub @DEAL_END
-jump @CHECK
-end
+    00D6: if
+    00F3: $PLAYER_ACTOR near_actor 5@ radius 2.0 2.0 sphere 0 on_foot  // cancel buy if the dealer run away
+    then
+        0109: player $PLAYER_CHAR money = -20   
+        0812: AS_actor 5@ perform_animation "DEALER_DEAL" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
+        0812: AS_actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "DEALER" framedelta 4.0 loopA 0 lockX 0 lockY 0 lockF 0 time 3200
+        0A09: set_actor 5@ muted 0
+        05C1: AS_actor 5@ speak_from_audio_table 84  
+        0001: wait 3000 ms         
+        09B6: set_actor 5@ wanted_by_police 1
+        077A: set_actor 5@ acquaintance 1 to_actors_pedtype 0  //Like or respect
+        0709: set_decision_maker $9453 on_event 39 taskID 276 respect 100.0 hate 0.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
+        0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
+        Actor.RemoveReferences(5@)
+        gosub @DEAL_END   
+        jump @HIT
+    else
+    gosub @DEAL_END
+    jump @CHECK
+    end 
+end     
 
 :HIT
 0001: wait 100 ms
 0605: actor $PLAYER_ACTOR perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms
-0001: wait 7000 
-0851: set_actor $PLAYER_ACTOR decrease_health_by 1 affect_armour 0 
+0001: wait 6000
+0624: increment_float_stat 23 by -0.1 // Decrease muscle
+08F8: display_stat_update_box 23 
+0001: wait 1000 ms
+0624: increment_float_stat 21 by -0.1 // Decrease fat
+08F8: display_stat_update_box 21 
+0851: set_actor $PLAYER_ACTOR decrease_health_by 10 affect_armour 0 // Decrease XP
 jump @HIT_0
 
 :HIT_0
@@ -468,14 +486,13 @@ jump @HIT_0
 3@ < 2
 then
 Inc(3@,1)
-jump @HIT_1
 else 
 13@ = Player.WantedLevel($PLAYER_CHAR)
 Inc(13@,1)  
 010D: set_player $PLAYER_CHAR wanted_level_to 8@
 0004: 3@ = 0
-jump @HIT_1
 end
+jump @HIT_1
 
 :HIT_1
 0001: wait 0 ms 
@@ -484,13 +501,12 @@ end
 0@ < 100
 then
 Inc(0@,100)  
-jump @DRUNK
 else 
 0@ = 200 // MAXIMUM DRUNK LEVEL
 2@ = 1000 // DECREASE DURATION BECAUSE GAME SPEED WILL BE REDUCED AND CJ's DRUNK TOO LONG (just my preference)  
 015D: set_gamespeed 0.9  
-jump @DRUNK
 end
+jump @DRUNK
 
 :DEAL_READY
 0001: wait 0 ms 
@@ -499,7 +515,7 @@ end
 0568: set_actor 5@ untargetable 1 
 02AB: set_actor 5@ immunities BP 1 FP 1 EP 1 CP 1 MP 1    
 01B9: set_actor $PLAYER_ACTOR armed_weapon_to 0   
-Player.CanMove($PLAYER_CHAR, False)
+01B4: set_player_control $PLAYER_CHAR to 0
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 1
 return
 
@@ -511,10 +527,5 @@ return
 0568: set_actor 5@ untargetable 0 
 02AB: set_actor 5@ immunities BP 0 FP 0 EP 0 CP 0 MP 0
 01B9: set_actor 5@ armed_weapon_to 0
-Player.CanMove($PLAYER_CHAR, True)
-077A: set_actor 5@ acquaintance 1 to_actors_pedtype 0  //Like or respect
-0709: set_decision_maker $9453 on_event 39 taskID 276 respect 100.0 hate 0.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
-0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time 5000
-0001: wait 1000 ms
-Actor.RemoveReferences(5@)
+01B4: set_player_control $PLAYER_CHAR to 1
 return

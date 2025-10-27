@@ -53,8 +53,8 @@ end
 0001: wait 0 ms
 04ED: load_animation "GANGS"
 04ED: load_animation "DEALER" 
-04ED: load_animation "FOOD"  
-0247: load_model 1486  
+04ED: load_animation "FOOD"
+0247: load_model 1486 //DYN_BEER_1   
 038B: load_requested_models     
 0002: jump @INIT 
 
@@ -159,26 +159,25 @@ end
 0605: actor $PLAYER_ACTOR perform_animation "DRUGS_BUY" IFP "GANGS" framedelta 7.0 loop 0 lockX 0 lockY 0 lockF 0 time 800  
 0001: wait 800 ms 
 070A: AS_actor $PLAYER_ACTOR attach_to_object 4@ offset 0.06 0.015 -0.05 on_bone 6 16 perform_animation "DRNKBR_PRTL" IFP_file "GANGS" time 2300   
-0001: wait 1800 ms 
-0249: release_model 1486  
-0001: wait 500 ms 
-070B: set_actor $PLAYER_ACTOR onbone_attached_object_operation 1       
+0001: wait 2300 ms   
+070B: drop_object $PLAYER_ACTOR drop 1       
 0108: destroy_object 4@ 
 0687: clear_actor $PLAYER_ACTOR task 
 03BF: set_player $PLAYER_CHAR ignored_by_everyone 0  
 0002: jump @BAR_7
 
 :BAR_7
-0001: wait 0 ms 
+0001: wait 0 ms
 00D6: if 
 0@ < 190
 then
 Inc(0@,30)
-if
-0@ == 120
+00D6: if and
+0@ > 100
+0@ < 150
 then
-0624: increment_float_stat 21 by 0.1 // Increase fat
-08F8: display_stat_update_box 21
+08F8: show_update_stats 1
+0623: increment_int_stat 2 to_integer_stat 21
 end     
 0002: jump @DRUNK 
 else 
@@ -329,9 +328,9 @@ else
     071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL2' // TAKE IT EASY MAN  
     then
     0459: end_script_named 'DEALER' // DEAL2 means CJ has bought to the same dealer or this mod failed to go through the DEAL1 logic flow, stop the script start from here
-    03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
     05C1: AS_actor 5@ speak_from_audio_table 192
     end
+    03E5: show_text_highpriority GXT 'TALK_1' time 5000 flag 1
     0A1D: AS_actor 5@ rotate_to_and_look_at_actor $PLAYER_ACTOR
     0639: task_turn_char_to_face_char 5@ char $PLAYER_ACTOR  
     0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1 
@@ -394,28 +393,22 @@ then
     0A09: set_actor $PLAYER_ACTOR muted 0
     05C1: AS_actor $PLAYER_ACTOR speak_from_audio_table 110
     05BF: AS_actor $PLAYER_ACTOR look_at_actor 5@ 100 ms
-    0708: clear_char_decision_maker_event_response $9453 event 36 // reset 0709: event decision Hate
-    0708: clear_char_decision_maker_event_response $9453 event 37 // reset 0709: event decision Dislike
-    077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // 4 = Dislike
-    00D6: if 
+    0708: clear_char_decision_maker_event_response $9453 event 37 // reset 0709: event decision Dislike (event is 37 if CJ responds with DEAL2)
+    00D6: if
     6@ > 0 
     then
-        0001: wait 0 ms
-        01B9: set_current_char_weapon 5@ armed_weapon_to 22
-        00D6: if
-        071A:   is_conversation_at_node 5@ current_dialogue_text == 'DEAL3' // FUCK YOU MAN
-        then
-        //1020 = TASK_SIMPLE_GUN_CTRL
-        //1000 = TASK_COMPLEX_KILL_PED_ON_FOOT
-        0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
-        else
-        0709: set_decision_maker $9453 on_event 37 taskID 1020 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
-        end
-    else
-    01B9: set_current_char_weapon 5@ armed_weapon_to 0
-    0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
-    end  
+    05C1: AS_actor 5@ speak_from_audio_table 78
+    01B9: set_current_char_weapon 5@ armed_weapon_to 22
     0001: wait 500 ms
+    else
+    05C1: AS_actor 5@ speak_from_audio_table 77
+    01B9: set_current_char_weapon 5@ armed_weapon_to 0
+    0001: wait 500 ms
+    end
+    077A: set_actor 5@ acquaintance 4 to_actors_pedtype 0 // 4 = Ready gun
+    0709: set_decision_maker $9453 on_event 36 taskID 1000 respect 0.0 hate 100.0 like 0.0 dislike 0.0 in_car 1 on_foot 1  //36 = Hate, 1000 = TASK_COMPLEX_KILL_PED_ON_FOOT 
+    0001: wait 2000 ms
+    Actor.RemoveReferences(5@)
     jump @INIT_0       
 else 
 jump @TALK
@@ -459,7 +452,6 @@ else
         077A: set_actor 5@ acquaintance 1 to_actors_pedtype 0  //Like or respect
         0709: set_decision_maker $9453 on_event 39 taskID 276 respect 100.0 hate 0.0 like 0.0 dislike 0.0 in_car 1 on_foot 1
         0605: actor 5@ perform_animation "DEALER_IDLE" IFP "DEALER" framedelta 4.0 loop 1 lockX 0 lockY 0 lockF 0 time -1
-        Actor.RemoveReferences(5@)
         gosub @DEAL_END   
         jump @HIT
     else
@@ -471,13 +463,11 @@ end
 :HIT
 0001: wait 100 ms
 0605: actor $PLAYER_ACTOR perform_animation_sequence "gum_eat" from_file "PED"  4.0  0  0  0  0 5000 ms
-0001: wait 6000
-0624: increment_float_stat 23 by -0.1 // Decrease muscle
-08F8: display_stat_update_box 23 
-0001: wait 1000 ms
-0624: increment_float_stat 21 by -0.1 // Decrease fat
-08F8: display_stat_update_box 21 
+0001: wait 5000 ms
+08F8: show_update_stats 1
+0625: decrement_int_stat 21 by 2 // Decrease fat
 0851: set_actor $PLAYER_ACTOR decrease_health_by 10 affect_armour 0 // Decrease XP
+0001: wait 2000 ms
 jump @HIT_0
 
 :HIT_0
@@ -501,7 +491,9 @@ jump @HIT_1
 0@ < 100
 then
 Inc(0@,100)  
-else 
+else
+08F8: show_update_stats 1
+0625: decrement_int_stat 23 by 2 // Decrease muscle 
 0@ = 200 // MAXIMUM DRUNK LEVEL
 2@ = 1000 // DECREASE DURATION BECAUSE GAME SPEED WILL BE REDUCED AND CJ's DRUNK TOO LONG (just my preference)  
 015D: set_gamespeed 0.9  

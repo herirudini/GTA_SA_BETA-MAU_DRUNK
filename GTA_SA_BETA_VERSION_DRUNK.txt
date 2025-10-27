@@ -85,8 +85,7 @@ jump @INIT
 end
 00D6: if 
 0256:   player $PLAYER_CHAR defined 
-004D: jump_if_false @INIT     
-15@ = Player.Money($PLAYER_CHAR)  
+004D: jump_if_false @INIT       
 0002: jump @BAR_1
 
 :BAR_1
@@ -122,7 +121,8 @@ end
 00D6: if 
 00E1:   player 0 pressed_key 16 // SPRINT BUTTON
 then
-03E6: remove_text_box 'CLOTHC'
+    15@ = Player.Money($PLAYER_CHAR)
+    03E6: remove_text_box 'CLOTHC'
     00D6: if 
     15@ < 10
     then
@@ -351,6 +351,8 @@ end
 00D6: if
 00E1: player 0 pressed_key 11 //Ginput Right 
 then
+    15@ = Player.Money($PLAYER_CHAR)
+    03E6: remove_text_box 'TALK_1'
     00D6: if 
     15@ < 10
     then
@@ -359,7 +361,6 @@ then
     004D: jump @CHECK
     else
     0459: end_script_named 'DEALER' // the DEAL1 logic flow must have stop script start from here
-    03E6: remove_text_box 'TALK_1'
     jump @BUY
     end
 else
@@ -477,8 +478,8 @@ jump @HIT_0
 then
 Inc(3@,1)
 else 
-13@ = Player.WantedLevel($PLAYER_CHAR)
-Inc(13@,1)  
+8@ = Player.WantedLevel($PLAYER_CHAR)
+Inc(8@,1)  
 010D: set_player $PLAYER_CHAR wanted_level_to 8@
 0004: 3@ = 0
 end
